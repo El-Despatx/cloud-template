@@ -12,7 +12,13 @@ def get_engine() -> Engine:
 
 
 def get_prod_engine() -> Engine:
-    raise NotImplementedError("Production database not implemented yet")
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT")
+    db_name = os.getenv("DB_NAME")
+    postgre_url = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    return create_engine(postgre_url)
 
 def get_dev_engine() -> Engine:
     sqlite_file = "database.db"
