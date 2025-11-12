@@ -1,6 +1,7 @@
 import os
 from typing import Annotated
 
+import sqlalchemy
 from fastapi import Depends
 from sqlalchemy.engine import Engine
 from sqlmodel import Session, SQLModel, create_engine
@@ -29,7 +30,7 @@ def get_dev_engine() -> Engine:
     return create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
 def is_production() -> bool:
-    prod: str |None = os.getenv("PROD", "false")
+    prod: str | None = os.getenv("PROD", "false")
     prod = prod.lower()
     return prod in IS_PROD
 
@@ -38,8 +39,11 @@ def all_env_vars_set() -> bool:
     return all(os.getenv(var) is not None for var in required_vars)
 
 def create_db_and_tables():
-    engine = get_engine()
-    SQLModel.metadata.create_all(engine)
+    try:
+        engine = get_engine()
+        SQLModel.metadata.create_all(engine)
+    except sqlalchemy.exc.OperationalError as e:
+        raise ConnectionError("Failed to connect to the production database. Some of the environment variables might are probably incorrect") from e
 
 def get_session():
     engine = get_engine()
