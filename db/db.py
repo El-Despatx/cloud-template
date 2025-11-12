@@ -10,8 +10,10 @@ IS_PROD = ["true", "1"]
 def get_engine() -> Engine:
     return get_prod_engine() if is_production() else get_dev_engine()
 
-
 def get_prod_engine() -> Engine:
+    if not all_env_vars_set():
+        raise EnvironmentError("One or more required environment variables are not set for production database connection.")
+
     db_user = os.getenv("DB_USER")
     db_password = os.getenv("DB_PASSWORD")
     db_host = os.getenv("DB_HOST")
@@ -30,6 +32,10 @@ def is_production() -> bool:
     prod: str |None = os.getenv("PROD", "false")
     prod = prod.lower()
     return prod in IS_PROD
+
+def all_env_vars_set() -> bool:
+    required_vars = ["DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME"]
+    return all(os.getenv(var) is not None for var in required_vars)
 
 def create_db_and_tables():
     engine = get_engine()
