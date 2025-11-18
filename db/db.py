@@ -21,12 +21,14 @@ def get_prod_engine() -> Engine:
     db_port = os.getenv("DB_PORT")
     db_name = os.getenv("DB_NAME")
     postgre_url = f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    print("Using production PostgreSQL database.")
     return create_engine(postgre_url)
 
 def get_dev_engine() -> Engine:
     sqlite_file = "database.db"
     sqlite_url = f"sqlite:///{sqlite_file}"
     connect_args = {"check_same_thread": False}
+    print("Using development SQLite database.")
     return create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
 def is_production() -> bool:
